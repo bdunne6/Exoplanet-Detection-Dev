@@ -36,7 +36,7 @@ img_observed(mask_inds) = nan;
 
 %construct and optimize the estimation problem
 exoprob = ExoplanetEstimationProblem(exozodi_init,img_observed,optimizer);
-[image_components_opt, residual, estimated_image ,i_outlier,cnt] = exoprob.optimize('verbose',1);
+[exozodi_opt, residual, estimated_image ,i_outlier,cnt] = exoprob.optimize('verbose',1);
 
 %display the observed image, estimated image, and residual
 estimated_image(logical(mask_inds)) = nan;
