@@ -70,8 +70,7 @@ classdef SimpleExozodi < ImageComponent
             Ygc = mdl.Yg - yc;
             
             %https://math.stackexchange.com/questions/426150/what-is-the-general-equation-of-the-ellipse-that-is-not-in-the-origin-and-rotate
-            m_dist = sqrt(a*(Xgc*cos(o) + Ygc*sin(o)).^2 + b*(Xgc*sin(o) - Ygc*cos(o)).^2);
-            %m_dist = sqrt((Xgc*cos(o) + Ygc*sin(o)).^2*a^(-2) + (Xgc*sin(o) - Ygc*cos(o)).^2*b^(-2));
+            m_dist = sqrt((Xgc*cos(o) + Ygc*sin(o)).^2*a^(-2) + (Xgc*sin(o) - Ygc*cos(o)).^2*b^(-2));
             disk = s*exp(polyval(p_coeff,m_dist)/e_scale);
         end
     end
