@@ -1,4 +1,4 @@
-classdef ParameterSet
+classdef (Abstract) ParameterSet
     %PARAMETERSET Summary of this class goes here
     %   Detailed explanation goes here
     
