@@ -1,6 +1,12 @@
+%% initialzie and set up paths
 clear;
 close all;
 addpath(genpath(fullfile('..','src')))
+
+%% settings
+mat_root = fullfile('..','mat_files');
+output_dir = 'plots';
+
 
 %set up initial guess for exozodi model
 exozodi_init = SimpleExozodi([48 48]);
@@ -11,8 +17,13 @@ exozodi_init.center_xy = [23 23];
 exozodi_init.exp_scale = 10;
 exozodi_init.poly_coeff = [-1 0 0];
 
+%create the output directory if it doesn't exist
+if ~exist(output_dir,'dir')
+    mkdir(output_dir)
+end
+
 %load a sample image to fit to
-load('release1_data.mat');
+load(fullfile(mat_root,'release1_data.mat'));
 
 image_set = release1_data.images;
 mean_psf = mean(release1_data.cal.psf.data,3);
@@ -59,18 +70,18 @@ for i1 = 1:numel(image_set)
     nexttile()
     imagesc(img_observed_plot)
     caxis(clims)
-    title('observed image with starshade mask')
+    title('Observed Image','FontSize',16)
     
     clims1 = get(gca,'CLim');
     nexttile()
     imagesc(estimated_image)
     caxis(clims)
-    title('best-fit exozodi with starshade mask')
+    title('Best-fit Disk With Starshade Mask','FontSize',16)
     
     clims = prctile(residual(:),[1 100]);
     nexttile()
     imagesc(residual)
-    title('residual')
+    title('Residual With Starshade mask','FontSize',16)
     caxis(clims)
     drawnow();
     
@@ -79,7 +90,13 @@ for i1 = 1:numel(image_set)
     
     disp('mean residual:')
     mean(abs(residual(:)),'omitnan')
-    pfilename = fullfile('plots','disk_residual_plots',[fname, '_residual.png']);
+    
+    outdir_res = fullfile(output_dir,'disk_residual_plots');
+    if ~exist(outdir_res,'dir')
+        mkdir(outdir_res);
+    end
+    
+    pfilename = fullfile(outdir_res,[fname, '_residual.png']);
     saveas(f1,pfilename);
 end
 
