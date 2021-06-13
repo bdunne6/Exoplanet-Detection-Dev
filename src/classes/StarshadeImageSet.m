@@ -118,6 +118,12 @@ classdef StarshadeImageSet < matlab.mixin.Copyable
             img_set_new.instrument_meta = obj.instrument_meta;
         end
         
+        function load(obj)
+            for i1 = 1:numel(obj.images)
+                obj.images(i1).load();
+            end
+        end
+        
     end
 end
 
