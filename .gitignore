@@ -1,3 +1,4 @@
 *.asv
 scripts/plots/
 scripts/release1_dev/plots/
+scripts/release2_dev/plots/
