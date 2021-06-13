@@ -1,7 +1,7 @@
 %% initialzie and set up paths
 clear;
 close all;
-addpath(genpath(fullfile('..','src')))
+addpath(genpath(fullfile('..','..','src')))
 
 %% settings
 mat_root = fullfile('..','mat_files');
