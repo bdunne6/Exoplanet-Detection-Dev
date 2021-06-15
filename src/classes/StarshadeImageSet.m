@@ -124,6 +124,40 @@ classdef StarshadeImageSet < matlab.mixin.Copyable
             end
         end
         
+        function plot_all(obj,f1)
+            n_images = numel(obj.images);
+            tile_ratio_rc = 4/3;
+            n_col = floor(sqrt(n_images*tile_ratio_rc));
+            
+            n_row = ceil(n_images / n_col);
+            
+            tile_size = [n_row,n_col];
+            tile_2d = @(i,j) sub2ind(fliplr(tile_size),j,i);
+            
+            figure(f1);
+            
+            t1 = tiledlayout(tile_size(1),tile_size(2));
+            
+            t1.TileSpacing = 'compact';
+            for i1 = 1:numel(obj.images)
+                %imgi1 = obj.images.
+                n_stack = size(obj.images(i1).data,3);
+                if n_stack > 1
+                    hs = [0,1.0; %red saturated
+                        0.4 1.0]; %green saturated
+                    ms_img1= obj.images(i1).data;
+                    imgi1 = multi_spectral_to_rgb(ms_img1,hs,[min(ms_img1(:)), max(ms_img1(:))]);
+                else
+                    imgi1 = obj.images(i1).data;
+                end
+                nexttile(i1);
+                imagesc(imgi1);
+                title(obj.images(i1).meta.file_name,'Interpreter','none');
+            end
+            
+        end
+        
+        
     end
 end
 
