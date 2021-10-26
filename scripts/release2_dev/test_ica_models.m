@@ -77,6 +77,7 @@ for i0 = 1:numel(img_set_test.images)
         %         reci1 = mdl.reconstruct(scores(1:i1));
         d = ica_mdls{i1};
         mdl = d.ica_mdl;
+        tw = mdl.TransformWeights;
 
         if all(ismember({'flips','rots'},fieldnames(d)))
             main_title = ['flips: ',  char(erase(formattedDisplayText(d.rots),newline)), ', rots: ' char(erase(formattedDisplayText(d.flips),newline))];
@@ -95,10 +96,28 @@ for i0 = 1:numel(img_set_test.images)
         end
 
         title(t1,main_title);
+        dvect = img_sample(:)';
+        scores = mdl.transform(dvect)';
 
-        scores = mdl.transform(img_sample(:)')';
-        tw = mdl.TransformWeights;
+
+        scores1 = dvect*tw;
+%         score1 = tw
+%         scores2 = robustfit(tw,dvect);
+
+
+%        i_thresh = prctile(dvect,100*(numel(dvect)-5)/numel(dvect))/2;
+        i_thresh = 0.5;
+%         scores2 = robustfit(tw,dvect,'fair',i_thresh);
+        scores2 = robustfit(tw,dvect,'huber',i_thresh);
+
+        
+        reci1_2 = tw*scores2(2:end) + scores2(1);
+        reci1_2 = reshape(reci1_2,img_size);
+        
+
         reci1 = tw*scores;
+
+
         reci1 = reshape(reci1,img_size);
 
         title_str = ['ICA model with ' num2str(mdl.NumLearnedFeatures) ' components.'];
@@ -123,6 +142,20 @@ for i0 = 1:numel(img_set_test.images)
         title(title_str);
         drawnow();
         pause(0.5);
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        title_str  = 'residual';
+        nexttile(tile_2d(1,3))
+        imagesc(img_sample(:,:,1) - reci1_2(:,:,1))
+        colorbar;
+        title(title_str);
+        nexttile(tile_2d(2,3))
+        imagesc(img_sample(:,:,2) - reci1_2(:,:,2))
+        colorbar;
+        title(title_str);
+        drawnow();
+        pause(1)
+
+
         %         currFrame = getframe(gcf);
         %         writeVideo(vidObj,currFrame);
     end
