@@ -5,6 +5,8 @@ img_folder = 'X:\project_data\JPL\starshade_exoplanet\release_2_data\SEDC Starsh
 %img_set = StarshadeImageSet(img_folder,1);
 % save('img_set.mat','img_set');
 
+output_folder = 'ica_models1';
+
 load('img_set.mat');
 
 img_set.roi = [13,13,41,41];
@@ -29,6 +31,10 @@ img_set_train.images = cat(2,img_set_train1.images,img_set_train2.images);
 % img_set_train = img_set_all;
 img_set_train = img_set_train.stack_by({'passband'});
 
+
+if ~exist(output_folder,'dir')
+    mkdir(output_folder);
+end
 
 X = [];
 %rots = [0,1,2,3];
@@ -60,12 +66,13 @@ end
 
 % mdl = pca_model(X,1,0);
 %
-n_comp_min = 6;
-n_comp_max = 18;
-for n_comp = 7:n_comp_max
-    ica_args = {X,n_comp,'IterationLimit',4000};
+n_comp_min = 15;
+n_comp_max = 19;
+for n_comp = n_comp_min:n_comp_max
+    disp(n_comp)
+    ica_args = {X,n_comp,'IterationLimit',10000};
 
-    mdl_name = fullfile('ica_models',['ica_', DataHash(ica_args),'.mat']);
+    mdl_name = fullfile(output_folder,['ica_',num2str(n_comp),'_',DataHash(ica_args),'.mat']);
 
     if exist(mdl_name,'file')
         load(mdl_name)
