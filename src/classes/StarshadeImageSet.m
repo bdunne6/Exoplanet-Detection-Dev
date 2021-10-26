@@ -175,7 +175,7 @@ classdef StarshadeImageSet < matlab.mixin.Copyable
             end
         end
         function val = get.roi(obj)
-             val = obj.roi_;
+            val = obj.roi_;
         end
 
     end
