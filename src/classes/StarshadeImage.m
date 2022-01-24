@@ -93,5 +93,23 @@ classdef StarshadeImage < matlab.mixin.Copyable
             end
         end
 
+        function vals = lookup_fits_key(obj,key)
+            vals = cell(numel(obj.meta),1);
+            for i1 = 1:numel(obj.meta)
+                metai1 = obj.meta(i1);
+                keywords = metai1.fits_info.PrimaryData.Keywords;
+                i_match = strcmpi(keywords(:,1),key);
+                val = keywords(i_match,2);
+                vals{i1} = val{1};
+            end
+        end
+
+        function  keywords = get_fits_keywords(obj)
+            keywords = cell(numel(obj.meta),1);
+            for i1 = 1:numel(obj.meta)
+                keywords{i1} = obj.meta(i1).fits_info.PrimaryData.Keywords;
+            end
+        end
+
     end
 end
