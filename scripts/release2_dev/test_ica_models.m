@@ -1,6 +1,6 @@
 clear;
 close all;
-data_root = 'ica_models';
+data_root = 'ica_models1';
 
 files = dir(fullfile(data_root,'*.mat'));
 
@@ -91,7 +91,7 @@ for i0 = 1:numel(img_set_test.images)
             continue
         end
 
-        if ~(mdl.NumLearnedFeatures == 15)
+        if ~(mdl.NumLearnedFeatures == 17)
             continue;
         end
 
@@ -101,19 +101,19 @@ for i0 = 1:numel(img_set_test.images)
 
 
         scores1 = dvect*tw;
-%         score1 = tw
-%         scores2 = robustfit(tw,dvect);
+        %         score1 = tw
+        %         scores2 = robustfit(tw,dvect);
 
 
-%        i_thresh = prctile(dvect,100*(numel(dvect)-5)/numel(dvect))/2;
+        %        i_thresh = prctile(dvect,100*(numel(dvect)-5)/numel(dvect))/2;
         i_thresh = 0.5;
-%         scores2 = robustfit(tw,dvect,'fair',i_thresh);
+        %         scores2 = robustfit(tw,dvect,'fair',i_thresh);
         scores2 = robustfit(tw,dvect,'huber',i_thresh);
 
-        
+
         reci1_2 = tw*scores2(2:end) + scores2(1);
         reci1_2 = reshape(reci1_2,img_size);
-        
+
 
         reci1 = tw*scores;
 
@@ -132,29 +132,28 @@ for i0 = 1:numel(img_set_test.images)
         title(title_str,'Interpreter','none');
 
         title_str  = 'residual';
-        nexttile(tile_2d(1,3))
-        imagesc(img_sample(:,:,1) - reci1(:,:,1))
-        colorbar;
-        title(title_str);
-        nexttile(tile_2d(2,3))
-        imagesc(img_sample(:,:,2) - reci1(:,:,2))
-        colorbar;
-        title(title_str);
-        drawnow();
-        pause(0.5);
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        title_str  = 'residual';
-        nexttile(tile_2d(1,3))
+        ax = nexttile(tile_2d(1,3));
+                ax.UserData = img_set_test.images(i0).meta(1).file_name;
         imagesc(img_sample(:,:,1) - reci1_2(:,:,1))
         colorbar;
+
         title(title_str);
+
+        title_str  = img_set_test.images(i0).meta(1).file_name(8:end-5);
         nexttile(tile_2d(2,3))
+        %store file associated with axes for labelling
+        ax.UserData = img_set_test.images(i0).meta(2).file_name;
         imagesc(img_sample(:,:,2) - reci1_2(:,:,2))
         colorbar;
         title(title_str);
         drawnow();
+
+        [labels] = label_planets(gcf);
         pause(1)
 
+        for i2 = 1:numel(labels)
+            i_match = contains({img_set_test.images(i0).meta.file_name},labels{i2}.file_name);
+        end
 
         %         currFrame = getframe(gcf);
         %         writeVideo(vidObj,currFrame);

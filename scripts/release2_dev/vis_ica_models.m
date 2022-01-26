@@ -1,6 +1,6 @@
 clear;
 close all;
-data_root = 'ica_models';
+data_root = 'ica_models_1em9_std';
 
 files = dir(fullfile(data_root,'*.mat'));
 

@@ -1,12 +1,15 @@
 clear;
 close all;
 
-mdl_path = fullfile('ica_models1','ica_17_ec2012725779cfc8a01eb63c55e867a7.mat');
+label_file_name = 'planet_labels_1em9.mat';
+% mdl_path = fullfile('ica_models1','ica_17_ec2012725779cfc8a01eb63c55e867a7.mat');
+mdl_path = fullfile('ica_models_1em9','ica_19_b7d23f1924ea919bc6a3620b473a79bc.mat');
+%mdl_path = fullfile('ica_models_1em9','ica_35_00d9cf82b805dd3874881c685ccdb0f0.mat');
 mdl_data = load(mdl_path);
 
 mdl = mdl_data.ica_mdl;
 
-load('img_set.mat');
+load('img_set_1em9.mat');
 img_set = img_set.stack_by({'passband'});
 
 % vidObj = VideoWriter('pca1.mp4','MPEG-4');
@@ -25,7 +28,7 @@ tile_2d = @(i,j) sub2ind(fliplr(tile_size),j,i);
 % img_set.images = img_set.images(randperm(numel(img_set.images)));
 
 
-load('planet_labels.mat');
+load(label_file_name);
 if exist('planet_checks.mat','file')
     load('planet_checks.mat')
 else
@@ -94,10 +97,9 @@ for i0 = 1:numel(img_set.images)
     reci1_2 = reshape(reci1_2,img_size);
 
 
-    reci1 = tw*scores;
-
-
-    reci1 = reshape(reci1,img_size);
+    %reci1 = tw*scores;
+    %reci1 = reshape(reci1,img_size);
+    reci1 = reci1_2;
 
     title_str = ['ICA model with ' num2str(mdl.NumLearnedFeatures) ' components.'];
     nexttile(tile_2d(1,2))

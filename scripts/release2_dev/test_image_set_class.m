@@ -1,10 +1,12 @@
 addpath(genpath(fullfile('..','..','src')))
 
-img_folder = 'X:\project_data\JPL\starshade_exoplanet\SEDC Starshade Rendezvous Imaging Simulations_v3\Simulated data\sister_sedc_starshade_rendezvous_imaging_1em10';
+img_folder = 'X:\project_data\JPL\starshade_exoplanet\release_2_data\SEDC Starshade Rendezvous Imaging Simulations_v3\Simulated data\sister_sedc_starshade_rendezvous_imaging_1em9';
 
-% img_set = StarshadeImageSet(img_folder,1);
+img_set = StarshadeImageSet(img_folder,1);
 % save('img_set.mat','img_set');
+img_set.roi = [13,13,41,41];
 
+save('img_set_1em9.mat');
 load('img_set.mat');
 
 s.passband = [425,552];

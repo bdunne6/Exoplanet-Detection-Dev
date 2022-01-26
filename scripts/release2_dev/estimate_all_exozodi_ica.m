@@ -1,13 +1,13 @@
 addpath(genpath(fullfile('..','..','src')))
 
-img_folder = 'X:\project_data\JPL\starshade_exoplanet\release_2_data\SEDC Starshade Rendezvous Imaging Simulations_v3\Simulated data\sister_sedc_starshade_rendezvous_imaging_1em10';
+img_folder = 'X:\project_data\JPL\starshade_exoplanet\release_2_data\SEDC Starshade Rendezvous Imaging Simulations_v3\Simulated data\sister_sedc_starshade_rendezvous_imaging_1em9';
 
 %img_set = StarshadeImageSet(img_folder,1);
 % save('img_set.mat','img_set');
 
-output_folder = 'ica_models1';
+output_folder = 'ica_models_1em9_std';
 
-load('img_set.mat');
+load('img_set_1em9.mat');
 
 img_set.roi = [13,13,41,41];
 % s_select = struct('snr_level',3,'exozodi_intensity',2);
@@ -39,6 +39,7 @@ end
 X = [];
 %rots = [0,1,2,3];
 rots = [0,2];
+%rots = [0];
 flips = [0,1];
 for i0 = 1:numel(flips)
     for i1 = 1:numel(rots)
@@ -66,11 +67,11 @@ end
 
 % mdl = pca_model(X,1,0);
 %
-n_comp_min = 15;
-n_comp_max = 19;
+n_comp_min = 17;
+n_comp_max = 25;
 for n_comp = n_comp_min:n_comp_max
     disp(n_comp)
-    ica_args = {X,n_comp,'IterationLimit',10000};
+    ica_args = {X,n_comp,'IterationLimit',20000,'Standardize',true};
 
     mdl_name = fullfile(output_folder,['ica_',num2str(n_comp),'_',DataHash(ica_args),'.mat']);
 

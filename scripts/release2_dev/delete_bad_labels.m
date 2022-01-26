@@ -1,6 +1,6 @@
 clear;
 load('planet_checks.mat')
-load('planet_labels.mat')
+load('planet_labels_1em9.mat')
 planet_checks = planet_checks';
 planet_checks = planet_checks(:);
 i_del = find([planet_checks.button] ~= 32);
@@ -12,4 +12,4 @@ i_pdel = ismember(plabel_names ,fdel);
 
 planet_labels(i_pdel) = [];
 
-save('planet_labels.mat','planet_labels');
+save('planet_labels_1em9_fixed.mat','planet_labels');

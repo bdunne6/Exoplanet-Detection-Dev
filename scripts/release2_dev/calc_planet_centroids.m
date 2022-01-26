@@ -1,12 +1,17 @@
 clear;
 close all;
 
-mdl_path = fullfile('ica_models1','ica_17_ec2012725779cfc8a01eb63c55e867a7.mat');
+%mdl_path = fullfile('ica_models1','ica_17_ec2012725779cfc8a01eb63c55e867a7.mat');
+mdl_path = fullfile('ica_models_1em9','ica_19_b7d23f1924ea919bc6a3620b473a79bc.mat');
+
+
 mdl_data = load(mdl_path);
 
 mdl = mdl_data.ica_mdl;
 
-load('img_set_disk.mat');
+%load('img_set_disk.mat');
+%img_set = img_set.stack_by({'passband'});
+load('img_set_disk_1em9_final.mat');
 %img_set = img_set.stack_by({'passband'});
 
 % vidObj = VideoWriter('pca1.mp4','MPEG-4');
@@ -25,12 +30,12 @@ tile_2d = @(i,j) sub2ind(fliplr(tile_size),j,i);
 % img_set.images = img_set.images(randperm(numel(img_set.images)));
 
 
-load('planet_labels.mat');
-if exist('planet_checks.mat','file')
-    load('planet_checks.mat')
-else
-    planet_checks = [];
-end
+load('planet_labels_1em9_final.mat');
+% if exist('planet_checks.mat','file')
+%     load('planet_checks.mat')
+% else
+%     planet_checks = [];
+% end
 
 cvec = -2:2;
 [xg,yg] = meshgrid(1:41,1:41);
@@ -99,9 +104,8 @@ for i0 = 1:numel(img_set.images)
 
 
     reci1 = tw*scores;
-
-
     reci1 = reshape(reci1,img_size);
+    reci1 = reci1_2;
 
     title_str = ['ICA model with ' num2str(mdl.NumLearnedFeatures) ' components.'];
     nexttile(tile_2d(1,2))
@@ -192,7 +196,7 @@ for i0 = 1:numel(img_set.images)
     img_set.images(i0).meta(1).disk.magnitude_counts = disk_mag1;
     img_set.images(i0).meta(2).disk.magnitude_counts = disk_mag2;
 end
-save('img_set_disk_mag.mat','img_set');
+save('img_set_disk_1em9_final1.mat','img_set');
 %save('planet_checks.mat','planet_checks');
 
 % function key = key_handler(src,event)
