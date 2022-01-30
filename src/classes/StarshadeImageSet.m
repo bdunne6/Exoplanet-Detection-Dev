@@ -55,6 +55,8 @@ classdef StarshadeImageSet < matlab.mixin.Copyable
 
             scomp = a.equal;
 
+            %check number of meta per image for correct alignment after image stacking
+            nmeta_per_image = unique(arrayfun(@(x) (numel(x.meta)), obj.images));
             meta_vals = cat(1,obj.images.meta);
             meta_fields = fieldnames(meta_vals);
             cell_vals = struct2cell(meta_vals);
@@ -73,6 +75,10 @@ classdef StarshadeImageSet < matlab.mixin.Copyable
             for i1 = 1:numel(struct_vals)
                 i_selected(i1) = isequal(scomp,struct_vals(i1));
             end
+
+            i_selected = reshape(i_selected(:)',[nmeta_per_image,numel(i_selected)/nmeta_per_image])';
+            %when there are multiple meta per image, select() should return images where any one meta matches.(implicit OR)
+            i_selected = any(i_selected,2);
 
             img_set_new = StarshadeImageSet();
             img_set_new.images = obj.images(i_selected);
