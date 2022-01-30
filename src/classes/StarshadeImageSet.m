@@ -42,6 +42,20 @@ classdef StarshadeImageSet < matlab.mixin.Copyable
             end
         end
 
+        function [img_set_new] = index(obj,varargin)
+            %METHOD1 Summary of this method goes here
+            %   Detailed explanation goes here
+            p = inputParser;
+            p.addRequired('index');
+            p.parse(varargin{:});
+            a = p.Results;
+
+            img_set_new = StarshadeImageSet();
+            img_set_new.images = obj.images(a.index);
+            img_set_new.instrument_meta = obj.instrument_meta;
+            img_set_new.roi = obj.roi;
+        end
+
         function [img_set_new,i_selected] = select(obj,varargin)
             %METHOD1 Summary of this method goes here
             %   Detailed explanation goes here
