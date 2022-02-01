@@ -8,10 +8,10 @@ function [y] = gaussian_psf(x,Xg,Yg)
 A = x(1);
 x0 = x(2);
 y0 = x(3);
-sigma = x(4);
+c = x(4);
+sigma = x(5);
 
 r = sqrt((Xg - x0).^2 + (Yg - y0).^2);
-y = A*exp(-(r.^2/sigma));
-
+y = A*exp(-(r.^2/sigma))+c;
 end
 

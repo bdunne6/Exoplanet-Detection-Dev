@@ -56,6 +56,8 @@ tile_2d = @(i,j) sub2ind(fliplr(tile_size),j,i);
 
 img_set_test.images = img_set_test.images(randperm(numel(img_set_test.images)));
 
+s.file_name = 'sister_R05_v2_rez2_snr3_0425_0552_nm_r2.fits';
+img_set_test = img_set_test.select('equal',s);
 for i0 = 1:numel(img_set_test.images)
     img_sample = img_set_test.images(i0).data_roi;
     img_size = size(img_sample);
@@ -122,12 +124,12 @@ for i0 = 1:numel(img_set_test.images)
 
         title_str = ['ICA model with ' num2str(mdl.NumLearnedFeatures) ' components.'];
         nexttile(tile_2d(1,2))
-        imagesc(reci1(:,:,1))
+        imagesc(reci1_2(:,:,1))
         colorbar;
         title(title_str,'Interpreter','none');
 
         nexttile(tile_2d(2,2))
-        imagesc(reci1(:,:,2))
+        imagesc(reci1_2(:,:,2))
         colorbar;
         title(title_str,'Interpreter','none');
 
@@ -145,15 +147,15 @@ for i0 = 1:numel(img_set_test.images)
         ax.UserData = img_set_test.images(i0).meta(2).file_name;
         imagesc(img_sample(:,:,2) - reci1_2(:,:,2))
         colorbar;
-        title(title_str);
+        title('residual');
         drawnow();
 
-        [labels] = label_planets(gcf);
-        pause(1)
-
-        for i2 = 1:numel(labels)
-            i_match = contains({img_set_test.images(i0).meta.file_name},labels{i2}.file_name);
-        end
+%         [labels] = label_planets(gcf);
+%         pause(1)
+% 
+%         for i2 = 1:numel(labels)
+%             i_match = contains({img_set_test.images(i0).meta.file_name},labels{i2}.file_name);
+%         end
 
         %         currFrame = getframe(gcf);
         %         writeVideo(vidObj,currFrame);

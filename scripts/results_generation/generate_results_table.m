@@ -1,6 +1,8 @@
 
 
-load('img_set_disk_1em9_final1.mat');
+% load('img_set_disk_1em9_final2.mat');
+load('img_set_disk_1em10_rev2.mat');
+json_file = 'level_1_results_rev2_1em10.json';
 
 % data_root = 'X:\project_data\JPL\starshade_exoplanet\release_2_data\SEDC Starshade Rendezvous Imaging Simulations_v3';
 %
@@ -39,13 +41,13 @@ for i1 = 1:numel(images)
         pixels_xy = [];
         planets_i2 = [];
         for i3 = 1:numel(metai2.planet_locations)
-            pixels_xy_i3 = [metai2.planet_locations(i3).x, metai2.planet_locations(i3).y];
+            pixels_xy_i3 = [metai2.planet_locations(i3).x_r, metai2.planet_locations(i3).y_r];
             pixels_xy_i3 = [pixels_xy_i3(1) + image_i1.roi(2)-1 , pixels_xy_i3(2) + image_i1.roi(1)-1];
             %             pixels_xy = cat(1,pixels_xy,pixels_xy_i3);
 
             planets_i2(i3).xy_pixels  = pixels_xy_i3;
-            planets_i2(i3).xy_mas  = (pixels_xy_i3 - [xy_center])*pixel_scale_i1;
-            planets_i2(i3).xy_uncertainty_mas  = NaN;
+            planets_i2(i3).xy_mas = (pixels_xy_i3 - [xy_center])*pixel_scale_i1;
+            planets_i2(i3).xy_uncertainty_mas  = [metai2.planet_locations(i3).x_u, metai2.planet_locations(i3).x_u]*pixel_scale_i1;
             planets_i2(i3).planet_counts = metai2.planet_locations(i3).counts;
             planets_i2(i3).planet_SNR = metai2.planet_locations(i3).counts_snr;
             planets_i2(i3).planet_star_ratio = metai2.planet_locations(i3).counts/start_fluxi2;
@@ -74,7 +76,7 @@ end
 
 
 json_out = jsonencode(list_out,'PrettyPrint',true,'ConvertInfAndNaN', false);
-json_file = 'level_1_results_rev1_1em9.json';
+
 save_plaintext(json_file,json_out);
 
 

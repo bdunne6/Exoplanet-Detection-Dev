@@ -1,4 +1,4 @@
-function [est_counts,SNR] = estimate_counts(img1,cent0,w)
+function [est_counts,SNR,noise_est] = estimate_counts(img1,cent0,w)
 %REFINE_CENTROID Summary of this function goes here
 %   Detailed explanation goes here
     w_lin = -(w-1)/2:(w-1)/2;

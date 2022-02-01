@@ -1,8 +1,8 @@
 clear;
 close all;
 
-%mdl_path = fullfile('ica_models1','ica_17_ec2012725779cfc8a01eb63c55e867a7.mat');
-mdl_path = fullfile('ica_models_1em9','ica_19_b7d23f1924ea919bc6a3620b473a79bc.mat');
+mdl_path = fullfile('ica_models1','ica_17_ec2012725779cfc8a01eb63c55e867a7.mat');
+%mdl_path = fullfile('ica_models_1em9','ica_19_b7d23f1924ea919bc6a3620b473a79bc.mat');
 
 
 mdl_data = load(mdl_path);
@@ -11,13 +11,19 @@ mdl = mdl_data.ica_mdl;
 
 %load('img_set_disk.mat');
 %img_set = img_set.stack_by({'passband'});
-load('img_set_disk_1em9_final.mat');
+load('img_set_disk.mat');
 %img_set = img_set.stack_by({'passband'});
 
 % vidObj = VideoWriter('pca1.mp4','MPEG-4');
 % vidObj.FrameRate = 1;
 % vidObj.Quality = 100;
 % open(vidObj);
+
+sigma_lookup_files = dir(fullfile('..','mat_files','psf_*.mat'));
+ind = find(contains({sigma_lookup_files.name},'0425_0552'));
+sigma_lookup1 = load(fullfile(sigma_lookup_files(ind(1)).folder,sigma_lookup_files(ind(1)).name));
+ind = find(contains({sigma_lookup_files.name},'0615_0800'));
+sigma_lookup2 = load(fullfile(sigma_lookup_files(ind(1)).folder,sigma_lookup_files(ind(1)).name));
 
 figure(101)
 set(gcf,'Color','white')
@@ -29,17 +35,31 @@ tile_2d = @(i,j) sub2ind(fliplr(tile_size),j,i);
 
 % img_set.images = img_set.images(randperm(numel(img_set.images)));
 
-
-load('planet_labels_1em9_final.mat');
+load('planet_labels.mat');
+% load('planet_labels_1em9_final.mat');
 % if exist('planet_checks.mat','file')
 %     load('planet_checks.mat')
 % else
 %     planet_checks = [];
 % end
+i_del = [planet_labels.x]<10|[planet_labels.y]<10|[planet_labels.x]>35|[planet_labels.y]>60;
+planet_labels(i_del) = [];
+
+
+figure;
+plot([planet_labels.x],[planet_labels.y],'.r')
+xlim([0 Inf])
+ylim([0 Inf])
+
+
 
 cvec = -2:2;
 [xg,yg] = meshgrid(1:41,1:41);
 for i0 = 1:numel(img_set.images)
+
+%     [contains({img_set.images(i0).meta(1).file_name},'0425_0552'),contains({img_set.images(i0).meta(1).file_name},'0615_0800')]
+    
+
 
     disp([num2str(i0) ' of ' num2str(numel(img_set.images))])
 
@@ -131,7 +151,7 @@ for i0 = 1:numel(img_set.images)
     disk_mag1 = sum(mag_ref1(:));
     res1_0  = img_sample(:,:,1) - reci1_2(:,:,1);
     res1 = imfilter(res1_0,k2);
-    imagesc(ax1,res1)
+    imagesc(ax1,res1_0)
 
     if ~isempty(labels_1)
         hold on;
@@ -141,11 +161,16 @@ for i0 = 1:numel(img_set.images)
 
         for i2 = 1:numel(labels_1)
             cent0 = [labels_1(i2).x,labels_1(i2).y];
-            w=3;
-            [cent1] = refine_centroid(res1,cent0,w);
+            w=7;
+            [cent1,cent_fit1] = refine_centroid_gaussian(res1_0 ,cent0,w,sigma_lookup1);
+            cent_uncertainty = diff(cent_fit1.ci(2:3,:),1,2)/2;
             labels_1(i2).x_r = cent1(1);
             labels_1(i2).y_r = cent1(2);
-            [labels_1(i2).counts,labels_1(i2).counts_snr] = estimate_counts(res1_0,cent1,5);
+            labels_1(i2).x_u = cent_uncertainty(1);
+            labels_1(i2).y_u = cent_uncertainty(2);
+            labels_1(i2).counts = cent_fit1.counts;
+            [~,~,noise_mag] = estimate_counts(res1_0,cent1,5);
+            labels_1(i2).counts_snr = labels_1(i2).counts/noise_mag;
         end
 
         plot([labels_1.x_r],[labels_1.y_r],'om');
@@ -164,7 +189,7 @@ for i0 = 1:numel(img_set.images)
     ax2 = nexttile(tile_2d(2,3));
     cla(ax2)
     %store file associated with axes for labelling
-    imagesc(ax2,res2)
+    imagesc(ax2,res2_0)
     colorbar;
     %caxis([0 Inf])
     if ~isempty(labels_2)
@@ -176,10 +201,16 @@ for i0 = 1:numel(img_set.images)
         for i2 = 1:numel(labels_2)
             cent0 = [labels_2(i2).x,labels_2(i2).y];
             w=3;
-            [cent1] = refine_centroid(res2,cent0,w);
+            %[cent1] = refine_centroid(res2,cent0,w);
+            [cent1,cent_fit2] = refine_centroid_gaussian(res2_0,cent0,w,sigma_lookup2);
+            cent_uncertainty = diff(cent_fit2.ci(2:3,:),1,2)/2;
             labels_2(i2).x_r = cent1(1);
             labels_2(i2).y_r = cent1(2);
-            [labels_2(i2).counts,labels_2(i2).counts_snr] = estimate_counts(res2_0,cent1,5);
+            labels_2(i2).x_u = cent_uncertainty(1);
+            labels_2(i2).y_u = cent_uncertainty(2);
+            labels_2(i2).counts = cent_fit2.counts;
+            [~,~,noise_mag] = estimate_counts(res2_0,cent1,5);
+            labels_2(i2).counts_snr = labels_2(i2).counts/noise_mag;
         end
         plot([labels_2.x_r],[labels_2.y_r],'om');
     end
@@ -196,7 +227,7 @@ for i0 = 1:numel(img_set.images)
     img_set.images(i0).meta(1).disk.magnitude_counts = disk_mag1;
     img_set.images(i0).meta(2).disk.magnitude_counts = disk_mag2;
 end
-save('img_set_disk_1em9_final1.mat','img_set');
+save('img_set_disk_1em10_rev2.mat','img_set');
 %save('planet_checks.mat','planet_checks');
 
 % function key = key_handler(src,event)

@@ -9,7 +9,7 @@ psf_files = dir(fullfile(data_root,'psf_*.fits'));
 addpath(genpath(fullfile('..','..','src')))
 
 %% script settings
-psf_crop = 11;
+psf_crop = 7;
 
 
 %% main script
@@ -28,7 +28,7 @@ for i0 = 1:numel(psf_files)
     pixel_dist = nan(size(psfs,3),1);
     sigma = nan(size(psfs,3),1);
     transmission = nan(size(psfs,3),1);
-
+    energy_ratio = nan(size(psfs,3),1);
     for i1 = 1:size(psfs,3)
         psf_i1 = psfs(:,:,i1);
         s_psf = size(psf_i1);
@@ -38,19 +38,20 @@ for i0 = 1:numel(psf_files)
         fit_data = fit_gaussian_psf(psf_i1);
 
         pixel_dist(i1) = i1*ddist/pixscale;
-        sigma(i1) = fit_data.x_opt(4);
+        sigma(i1) = fit_data.x_opt(5);
         transmission(i1) = sum(psfs(:,:,i1),'all');
+        energy_ratio(i1) = sum(fit_data.y_opt - fit_data.x_opt(4),'all')/sum(psfs(:,:,i1),'all');
     end
 
 
     [~,fname] = fileparts(psf_files(i0).name);
     fname = [fname,'_sigma_lookup.mat'];
     dest_file = fullfile(dest_root,fname);
-    save(dest_file,'pixel_dist','sigma');
+    save(dest_file,'pixel_dist','sigma','energy_ratio');
 
     hold on;
     plot(pixel_dist,sigma);
-    ylim([0 Inf])
+    ylim([0 5])
     drawnow();
 end
 legend({psf_files.name},'Interpreter','none');
