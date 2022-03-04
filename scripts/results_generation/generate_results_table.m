@@ -1,4 +1,4 @@
-
+close all; clear; setup_path();
 
 % load('img_set_disk_1em9_final2.mat');
 load('img_set_disk_1em10_rev2.mat');
