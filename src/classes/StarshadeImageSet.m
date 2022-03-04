@@ -149,6 +149,31 @@ classdef StarshadeImageSet < matlab.mixin.Copyable
             img_set_new.roi = obj.roi;
         end
 
+        function img_set_new = unstack(obj)
+            %METHOD1 Summary of this method goes here
+            %   Detailed explanation goes here
+
+            images0 = obj.images;
+            images_new = [];
+            for i1 = 1:numel(images0)
+                for i2 = 1:numel(images0(i1).meta)
+
+                    %create the array of output images
+                    images_i2 = StarshadeImage();
+                    images_i2.meta = images0(i1).meta(i2);
+                    images_i2.data = images0(i1).data(:,:,i2);
+                    images_i2.roi = obj.roi;
+                    
+                    images_new = [images_new, images_i2];
+                end
+            end
+
+            img_set_new = StarshadeImageSet();
+            img_set_new.images = images_new;
+            img_set_new.instrument_meta = obj.instrument_meta;
+            img_set_new.roi = obj.roi;
+        end
+
         function load(obj)
             for i1 = 1:numel(obj.images)
                 obj.images(i1).load();
