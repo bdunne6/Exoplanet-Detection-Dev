@@ -162,6 +162,8 @@ for i0 = 1:numel(img_set.images)
         for i2 = 1:numel(labels_1)
             cent0 = [labels_1(i2).x,labels_1(i2).y];
             w=7;
+            %TODO: Fix the SNR calculation using proper PSF SNR estimation math:
+            %https://www.stsci.edu/instruments/wfpc2/Wfpc2_hand6/ch6_exposuretime6.html
             [cent1,cent_fit1] = refine_centroid_gaussian(res1_0 ,cent0,w,sigma_lookup1);
             cent_uncertainty = diff(cent_fit1.ci(2:3,:),1,2)/2;
             labels_1(i2).x_r = cent1(1);
