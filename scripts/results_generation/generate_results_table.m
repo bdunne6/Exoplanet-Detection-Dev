@@ -1,7 +1,7 @@
 close all; clear; setup_path();
-
+mat_root = mat_output_root();
 % load('img_set_disk_1em9_final2.mat');
-load('img_set_disk_1em10_rev2.mat');
+load(fullfile(mat_root,'img_set_disk_1em10_rev2.mat'));
 json_file = 'level_1_results_rev2_1em10.json';
 
 %% user settings
@@ -24,7 +24,6 @@ for i1 = 1:numel(meta)
         data_i1.planets = [];
     end
     list_out{i1} = data_i1;
-
 end
 
 json_out = jsonencode(list_out,'PrettyPrint',true,'ConvertInfAndNaN', false);
@@ -35,7 +34,3 @@ fid = fopen(json_file,'r');
 json_string = fread(fid,'char=>char')';
 fclose(fid);
 data = jsondecode(json_string);
-data(1).planets(1).xy_mas
-
-
-
