@@ -1,10 +1,8 @@
 close all; clear; setup_path();
 
 % load('img_set_disk_1em9_final2.mat');
-load('img_set_disk_1em10_rev2_1.mat');
-json_file = 'level_1_results_rev2_1em10_1.json';
-
-
+load('img_set_disk_1em10_rev2.mat');
+json_file = 'level_1_results_rev2_1em10.json';
 
 %% user settings
 meta_output_fields = {'file_name','design','num_planets','planets','disk'};
@@ -30,7 +28,6 @@ for i1 = 1:numel(meta)
 end
 
 json_out = jsonencode(list_out,'PrettyPrint',true,'ConvertInfAndNaN', false);
-
 save_plaintext(json_file,json_out);
 
 
