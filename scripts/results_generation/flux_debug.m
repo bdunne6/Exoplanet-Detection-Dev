@@ -1,7 +1,7 @@
 mat_true = dir(fullfile('..','..','data','ground_truth','*.mat'));
 
 %load detections and estimates
-load(fullfile(mat_root,'img_set_disk_1em10_rev2.mat'));
+load(fullfile(mat_output_root,'img_set_disk_1em10_rev2.mat'));
 img_set = img_set.unstack();
 
 for i1 = 1:numel(mat_true)
@@ -11,18 +11,22 @@ for i1 = 1:numel(mat_true)
     fits_name = strrep(mat_true(i1).name,'.mat','.fits');
 
     image_m = img_set.select('equal',struct('file_name',fits_name)).images;
-
+    
+    if isempty(image_m.meta.planet_locations)
+        continue;
+    end
 
     starflx = image_m.lookup_fits_key('STARFLX');
     inttime = image_m.lookup_fits_key('INTTIME');
 
+    dm = struct();
     dm.star_total_PSF_counts = starflx{1}*inttime{1};
     dm.planets_total_PSF_counts = [];
     dm.planets_star_flux_ratio = [];
     if ~isempty(image_m.meta.planet_locations)
 
         for i2 = 1:numel(image_m.meta.planet_locations)
-            dm.planets_total_PSF_counts = [dm.planets_total_PSF_counts,image_m.meta.planet_locations.counts];
+            dm.planets_total_PSF_counts = [dm.planets_total_PSF_counts,image_m.meta.planet_locations(i2).counts];
         end
         dm.planets_star_flux_ratio = dm.planets_total_PSF_counts./dm.star_total_PSF_counts;
     end
