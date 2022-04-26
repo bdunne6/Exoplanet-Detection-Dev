@@ -47,7 +47,6 @@ for i1 = 1:numel(images)
 
         %% assign back to meta struct
         metai2.planets = planets_i2;
-        metai2.disk
 
         metai2.disk.inclination_deg = acosd(axes_ratio);
         metai2.disk.density = NaN;
