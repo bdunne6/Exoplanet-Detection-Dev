@@ -24,6 +24,11 @@ for i1 = 1:numel(images)
         start_fluxi2 = image_i1.lookup_fits_key('STARFLX');
         start_fluxi2 = start_fluxi2{i2};
 
+        int_timei2 = image_i1.lookup_fits_key('INTTIME');
+        int_timei2 = int_timei2{i2};
+
+        star_total_counts = start_fluxi2*int_timei2;
+
         planets_i2 = struct();
 
         for i3 = 1:numel(metai2.planet_locations)
@@ -33,8 +38,9 @@ for i1 = 1:numel(images)
             planets_i2(i3).xy_mas = (pixels_xy_i3 - [xy_center])*pixel_scale_i1;
             planets_i2(i3).xy_uncertainty_mas  = [metai2.planet_locations(i3).x_u, metai2.planet_locations(i3).x_u]*pixel_scale_i1;
             planets_i2(i3).planet_counts = metai2.planet_locations(i3).counts;
-            planets_i2(i3).planet_SNR = metai2.planet_locations(i3).counts_snr;
-            planets_i2(i3).planet_star_ratio = metai2.planet_locations(i3).counts/start_fluxi2;
+            planets_i2(i3).planet_SNR = metai2.planet_locations(i3).snr_est;
+            planets_i2(i3).fwhm = metai2.planet_locations(i3).fwhm;
+            planets_i2(i3).planet_star_ratio = metai2.planet_locations(i3).counts/star_total_counts;
         end
 
         %% disk properties
