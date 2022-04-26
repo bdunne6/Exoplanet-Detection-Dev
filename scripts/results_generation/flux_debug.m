@@ -1,7 +1,7 @@
 mat_true = dir(fullfile('..','..','data','ground_truth','*.mat'));
 
 %load detections and estimates
-load('img_set_disk_1em10_rev2.mat');
+load(fullfile(mat_root,'img_set_disk_1em10_rev2.mat'));
 img_set = img_set.unstack();
 
 for i1 = 1:numel(mat_true)
@@ -29,8 +29,10 @@ for i1 = 1:numel(mat_true)
 
     if ~isempty(dm.planets_star_flux_ratio)
         format long
-        disp('flux ratios:')
+        disp('flux ratios true:')
+
         disp(dt.planets_star_flux_ratio)
+                disp('flux ratios measured:')
         disp(dm.planets_star_flux_ratio)
     end
 
