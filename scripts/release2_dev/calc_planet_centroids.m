@@ -56,9 +56,10 @@ ylim([0 Inf])
 cvec = -2:2;
 [xg,yg] = meshgrid(1:41,1:41);
 for i0 = 1:numel(img_set.images)
+    image_pair_i0 = img_set.index(i0).unstack();
 
-%     [contains({img_set.images(i0).meta(1).file_name},'0425_0552'),contains({img_set.images(i0).meta(1).file_name},'0615_0800')]
-    
+    %     [contains({img_set.images(i0).meta(1).file_name},'0425_0552'),contains({img_set.images(i0).meta(1).file_name},'0615_0800')]
+
 
 
     disp([num2str(i0) ' of ' num2str(numel(img_set.images))])
@@ -171,9 +172,14 @@ for i0 = 1:numel(img_set.images)
             labels_1(i2).x_u = cent_uncertainty(1);
             labels_1(i2).y_u = cent_uncertainty(2);
             labels_1(i2).counts = cent_fit1.counts;
-            [~,~,noise_mag] = estimate_counts(res1_0,cent1,5);
+            [~,~,noise_mag,noise_per_pixel] = estimate_counts(res1_0,cent1,5);
             labels_1(i2).counts_snr = labels_1(i2).counts/noise_mag;
             labels_1(i2).centroid_args = {res1_0 ,cent0,w,sigma_lookup1};
+
+            PSF_fit = sample_gaussian_psf(cent_fit1,w);
+            labels_1(i2).snr_est = estimate_SNR(image_pair_i0.images(1),PSF_fit,noise_per_pixel);
+            sigma = sqrt(cent_fit1.x_opt(5)/2);
+            labels_1(i2).fwhm = 2.355*sigma; %https://en.wikipedia.org/wiki/Full_width_at_half_maximum
         end
 
         plot([labels_1.x_r],[labels_1.y_r],'om');
@@ -203,7 +209,7 @@ for i0 = 1:numel(img_set.images)
 
         for i2 = 1:numel(labels_2)
             cent0 = [labels_2(i2).x,labels_2(i2).y];
-            w=3;
+            w=7;
             %[cent1] = refine_centroid(res2,cent0,w);
             [cent1,cent_fit2] = refine_centroid_gaussian(res2_0,cent0,w,sigma_lookup2);
             cent_uncertainty = diff(cent_fit2.ci(2:3,:),1,2)/2;
@@ -212,14 +218,20 @@ for i0 = 1:numel(img_set.images)
             labels_2(i2).x_u = cent_uncertainty(1);
             labels_2(i2).y_u = cent_uncertainty(2);
             labels_2(i2).counts = cent_fit2.counts;
-            [~,~,noise_mag] = estimate_counts(res2_0,cent1,5);
+            [~,~,noise_mag,noise_per_pixel] = estimate_counts(res2_0,cent1,5);
             labels_2(i2).counts_snr = labels_2(i2).counts/noise_mag;
             labels_2(i2).centroid_args = {res2_0,cent0,w,sigma_lookup2};
+
+            PSF_fit = sample_gaussian_psf(cent_fit2,w);
+            labels_2(i2).snr_est = estimate_SNR(image_pair_i0.images(2),PSF_fit,noise_per_pixel);
+            sigma = sqrt(cent_fit2.x_opt(5)/2);
+            labels_2(i2).fwhm = 2.355*sigma; %https://en.wikipedia.org/wiki/Full_width_at_half_maximum
+
         end
         plot([labels_2.x_r],[labels_2.y_r],'om');
     end
-%     median(res1(:))
-%     median(res2(:))
+    %     median(res1(:))
+    %     median(res2(:))
     title(title_str);
     drawnow();
     ax2.UserData = img_set.images(i0).meta(2).file_name;

@@ -5,6 +5,8 @@ function [SNR1] = estimate_SNR(image_m,PSF_fit,noise_per_pixel)
 %https://www.stsci.edu/instruments/wfpc2/Wfpc2_hand6/ch6_exposuretime6.html
 
 
+
+
 dark_curr = image_m.lookup_fits_key('DARKCURR');
 dark_curr = dark_curr{1};
 int_times = image_m.lookup_fits_key('INTTIME');

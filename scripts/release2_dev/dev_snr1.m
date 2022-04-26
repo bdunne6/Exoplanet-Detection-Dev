@@ -1,5 +1,5 @@
 clear; setup_path();
-close all;
+%close all;
 
 
 mat_true = dir(fullfile('..','..','data','ground_truth','*.mat'));
@@ -29,16 +29,19 @@ for i1 = 1:numel(mat_true)
     %https://www.stsci.edu/instruments/wfpc2/Wfpc2_hand6/ch6_exposuretime6.html
 
     [res1_0 ,cent0,w,sigma_lookup1] = cargs{:};
-        w=7;
+       w=5;
 
     [cent1,cent_fit1] = refine_centroid_gaussian(res1_0 ,cent0,w,sigma_lookup1);
     cent_uncertainty = diff(cent_fit1.ci(2:3,:),1,2)/2;
     [~,SNR0,noise_mag,noise_per_pixel] = estimate_counts(res1_0,cent1,5);
 
 
+    
     %dev %%%%%%%%%%%%%%%%%%%%%%%%%
-    PSF_fit = cent_fit1.y_opt - cent_fit1.x_opt(4);
-    %[SNR1] = estimate_SNR(image_m,PSF_fit,noise_per_pixel)
+    %PSF_fit = cent_fit1.y_opt - cent_fit1.x_opt(4);
+
+    PSF_fit = sample_gaussian_psf(cent_fit1,7);
+    [SNR2] = estimate_SNR(image_m,PSF_fit,noise_per_pixel)
 
 
     int_times = image_m.lookup_fits_key('INTTIME');
@@ -56,12 +59,10 @@ for i1 = 1:numel(mat_true)
     nframes = nframes{1};
 
         %counts_snr1
-    PSF_fit = cent_fit1.y_opt - cent_fit1.x_opt(4);
+    %PSF_fit = cent_fit1.y_opt - cent_fit1.x_opt(4);
     S_fit = sum(PSF_fit,'all');
     PSF_norm = PSF_fit/sum(PSF_fit(:));
     sharpness = sum(PSF_norm(:).^2);
-
-    noise_per_pixel = noise_per_pixel;
 
         eff_readout_noise =   readout_noise*nframes/sqrt(nframes);
 
@@ -78,6 +79,7 @@ for i1 = 1:numel(mat_true)
     SNR1 = SNR_num/sqrt(SNR_denom_sq);
 
     sqrt(dt.planets_total_PSF_counts)
+    SNR2
     SNR1 
     SNR0
     dt.snr_goal
