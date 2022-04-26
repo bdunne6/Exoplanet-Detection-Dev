@@ -1,35 +1,53 @@
-load('snr_est_inputs.mat');
-for i2 = 1:numel(labels_1)
-    cent0 = [labels_1(i2).x,labels_1(i2).y];
+clear; setup_path();
+
+
+mat_true = dir(fullfile('..','..','data','ground_truth','*.mat'));
+
+
+img_set = load(fullfile(mat_output_root,'img_set_disk_1em10_rev2_1.mat')).img_set;
+img_set = img_set.unstack;
+%img_set.
+
+for i1 = 1:numel(mat_true)
+    mat_filei1 = fullfile(mat_true(i1).folder,mat_true(i1).name);
+    dt = load(mat_filei1);
+
+    fits_name = strrep(mat_true(i1).name,'.mat','.fits');
+
+    image_m = img_set.select('equal',struct('file_name',fits_name)).images;
+
+    if isempty(image_m.meta.planet_locations)
+        continue;
+    end
+
+    cargs = image_m.meta.planet_locations.centroid_args;
+
     w=7;
     %TODO: Fix the SNR calculation using proper PSF SNR estimation math:
     %https://www.stsci.edu/instruments/wfpc2/Wfpc2_hand6/ch6_exposuretime6.html
+
+    [res1_0 ,cent0,w,sigma_lookup1] = cargs{:};
+
     [cent1,cent_fit1] = refine_centroid_gaussian(res1_0 ,cent0,w,sigma_lookup1);
     cent_uncertainty = diff(cent_fit1.ci(2:3,:),1,2)/2;
-    labels_1(i2).x_r = cent1(1);
-    labels_1(i2).y_r = cent1(2);
-    labels_1(i2).x_u = cent_uncertainty(1);
-    labels_1(i2).y_u = cent_uncertainty(2);
-    labels_1(i2).counts = cent_fit1.counts;
-    [~,~,noise_mag,noise_per_pixel] = estimate_counts(res1_0,cent1,5);
-    labels_1(i2).counts_snr = labels_1(i2).counts/noise_mag;
+    [~,SNR0,noise_mag,noise_per_pixel] = estimate_counts(res1_0,cent1,5);
 
     %dev %%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
-    int_times = img_set.images(i0).lookup_fits_key('INTTIME');
+    int_times = image_m.lookup_fits_key('INTTIME');
     int_time1 = int_times{1};
-    dark_curr = img_set.images(i0).lookup_fits_key('DARKCURR');
+    dark_curr = image_m.lookup_fits_key('DARKCURR');
     dark_curr = dark_curr{1};
 
-    readout_noise = img_set.images(i0).lookup_fits_key('READOUT');
+    readout_noise = image_m.lookup_fits_key('READOUT');
     readout_noise = readout_noise{1};
 
-    detgain = img_set.images(i0).lookup_fits_key('DETGAIN');
+    detgain = image_m.lookup_fits_key('DETGAIN');
     detgain = detgain{1};
 
-    nframes = img_set.images(i0).lookup_fits_key('NFRAMES');
+    nframes = image_m.lookup_fits_key('NFRAMES');
     nframes = nframes{1};
 
         %counts_snr1
@@ -53,4 +71,7 @@ for i2 = 1:numel(labels_1)
 
     SNR1 = SNR_num/sqrt(SNR_denom_sq);
 
+    SNR1 
+    SNR0
+    dt.snr_goal
 end
