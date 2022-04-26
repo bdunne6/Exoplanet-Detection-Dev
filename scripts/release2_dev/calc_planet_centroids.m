@@ -173,6 +173,7 @@ for i0 = 1:numel(img_set.images)
             labels_1(i2).counts = cent_fit1.counts;
             [~,~,noise_mag] = estimate_counts(res1_0,cent1,5);
             labels_1(i2).counts_snr = labels_1(i2).counts/noise_mag;
+            labels_1(i2).centroid_args = {res1_0 ,cent0,w,sigma_lookup1};
         end
 
         plot([labels_1.x_r],[labels_1.y_r],'om');
@@ -213,6 +214,7 @@ for i0 = 1:numel(img_set.images)
             labels_2(i2).counts = cent_fit2.counts;
             [~,~,noise_mag] = estimate_counts(res2_0,cent1,5);
             labels_2(i2).counts_snr = labels_2(i2).counts/noise_mag;
+            labels_2(i2).centroid_args = {res2_0,cent0,w,sigma_lookup2};
         end
         plot([labels_2.x_r],[labels_2.y_r],'om');
     end
@@ -229,11 +231,5 @@ for i0 = 1:numel(img_set.images)
     img_set.images(i0).meta(1).disk.magnitude_counts = disk_mag1;
     img_set.images(i0).meta(2).disk.magnitude_counts = disk_mag2;
 end
-save('img_set_disk_1em10_rev2.mat','img_set');
-%save('planet_checks.mat','planet_checks');
-
-% function key = key_handler(src,event)
-% key = event.key;
-% disp(key);
-% assignin('base','keyi0',key);
-% end
+img_set = add_final_params(img_set);
+save(fullfile(mat_output_root,'img_set_disk_1em10_rev2.mat'),'img_set');
