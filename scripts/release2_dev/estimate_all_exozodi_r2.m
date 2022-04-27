@@ -6,16 +6,17 @@ addpath(genpath(fullfile('..','..','src')))
 %% settings
 mat_root = fullfile('..','mat_files');
 output_dir = 'plots';
+mat_in = fullfile(mat_output_root,'img_set_disk_1em10_rev2.mat');
 
 
 %set up initial guess for exozodi model
-exozodi_init = SimpleExozodi([48 48]);
+exozodi_init = SimpleExozodi([41 41]);
 exozodi_init.intensity_scale = 2000;
-exozodi_init.axes_ratio = 0.5;
+exozodi_init.axes_ratio = 1.0;
 exozodi_init.orientation = 0;
-exozodi_init.center_xy = [23 23];
-exozodi_init.exp_scale = 10;
-exozodi_init.poly_coeff = [-1 0 0];
+exozodi_init.center_xy = [21 21];
+exozodi_init.exp_scale = 80;
+exozodi_init.poly_coeff = [-1 -1 -1 0 ];
 
 %create the output directory if it doesn't exist
 if ~exist(output_dir,'dir')
@@ -26,18 +27,20 @@ end
 %load('img_set.mat');
 %load('img_set_labelled.mat');
 
-load('img_set_disk_mag.mat');
+
+
+load(mat_in);
 
 %img_set = img_set.select('equal',struct('scenario',5,'snr_level',3,'exozodi_model','rez','exozodi_intensity',2,'visit_num',1,'passband',[425 552]));
 %img_set = img_set.select('equal',struct('scenario',5,'snr_level',3,'exozodi_model','rez','exozodi_intensity',2,'visit_num',2,'passband',[425 552]));
 % mean_psf = mean(release1_data.cal.psf.data,3);
 %exozodi_init.psf = mean_psf;
-mask_center = [25,25];
+mask_center = [21,21];
 
 %plot the initial guess
 
-exo_init = load('exozodi_init.mat');
-exozodi_init = exo_init.exozodi_opt;
+%exo_init = load('exozodi_init.mat');
+%exozodi_init = exo_init.exozodi_opt;
 img_init = exozodi_init.get_component();
 figure;
 imagesc(img_init)
@@ -47,11 +50,11 @@ disk_parameters = [];
 for i1 = 1:numel(img_set.images)
 
     for i2 = 1:numel(img_set.images(i1).meta)
-        img_observed = img_set.images(i1).data(:,:,i2);
+        img_observed = img_set.images(i1).data_roi(:,:,i2);
         meta_i2 = img_set.images(i1).meta(i2);
         %mask out previously detected planets
         if ~isempty(meta_i2.planet_locations)
-            planet_locations = round([cat(1,meta_i2.planet_locations.x_r)+12,cat(1,meta_i2.planet_locations.y_r)+12]);
+            planet_locations = round([cat(1,meta_i2.planet_locations.x_r),cat(1,meta_i2.planet_locations.y_r)]);
             planet_mask = zeros(size(img_observed));
             if ~any(isnan(planet_locations))
             for i3 = 1:size(planet_locations,1)
@@ -60,25 +63,26 @@ for i1 = 1:numel(img_set.images)
             end
             planet_mask = logical(imfilter(planet_mask,ones(3)));
             %img_observed(logical(planet_mask)) = NaN;
-            planet_mask = planet_mask(9:end-9,9:end-9);
+            %planet_mask = planet_mask(9:end-9,9:end-9);
         else
             planet_mask = false(size(img_observed));
-            planet_mask = planet_mask(9:end-9,9:end-9);
+            %planet_mask = planet_mask(9:end-9,9:end-9);
         end
 
         meta_i2.planet_locations
 
         %set up the optimizer
-        optimizer = LMOptimizer();
+        optimizer0 = LMOptimizer();
         optim_opts = OptimizerOptions();
         optim_opts.loss_fun_args = {'loss_function','hybrid_log','loss_threshold',1000};
-        optimizer.options = optim_opts;
+        optimizer0.options = optim_opts;
+        optimizer = SimplexOptimizer();
 
         %subtract median background
         img_bgnd = median(img_observed(:));
         img_observed = img_observed - img_bgnd;
         %img_observed = img_observed - 800;
-        img_observed = img_observed(9:end-9,9:end-9);
+        %img_observed = img_observed(13:end-13,13:end-13);
         img_observed_plot = img_observed;
         %apply a mask of nans to the area close to the starshade
         mask_inds = circular_nan_mask(size(img_observed),mask_center,3);
@@ -88,8 +92,13 @@ for i1 = 1:numel(img_set.images)
 
         %construct and optimize the estimation problem
         exoprob = ExoplanetEstimationProblem(exozodi_init,img_observed_est,optimizer);
+        exoprob.image_components_fixed.center_xy = [21,21];
         [exozodi_opt, residual, estimated_image0 ,i_outlier,cnt] = exoprob.optimize('verbose',1);
 
+                exoprob = ExoplanetEstimationProblem(exozodi_opt,img_observed_est,optimizer0);
+                 exoprob.image_components_fixed.center_xy = [21,21];
+        [exozodi_opt, residual, estimated_image0 ,i_outlier,cnt] = exoprob.optimize('verbose',1);
+    exozodi_opt.center_xy
         %display the observed image, estimated image, and residual
         clims = prctile(img_observed(:),[5 99.9]);
         estimated_image = estimated_image0;
@@ -102,7 +111,7 @@ for i1 = 1:numel(img_set.images)
         ti1.TileSpacing = 'compact';
         ti1.Padding = 'compact';
         nexttile()
-        imagesc(img_observed_plot)
+        imagesc(img_observed_plot.*(~mask_inds))
         caxis(clims)
         title('Observed Image','FontSize',16)
 
@@ -114,7 +123,9 @@ for i1 = 1:numel(img_set.images)
 
         clims = prctile(residual(:),[1 100]);
         nexttile()
-        imagesc(residual)
+        residual1 = img_observed_plot- estimated_image0;
+        residual1(mask_inds) = nan;
+        imagesc(residual1)
         title('Residual With Starshade mask','FontSize',16)
         caxis(clims)
         drawnow();
@@ -138,13 +149,15 @@ for i1 = 1:numel(img_set.images)
         %disk_parameters_i1.file_name = img_set.images(i1).meta.file_name;
         disk_parameters_i1.exozodi_opt = exozodi_opt;
         disk_parameters_i1.exozodi_image = estimated_image0;
-        disk_parameters_i1.roi = [9,9,48,48];
+        disk_parameters_i1.roi = img_set.images(i1).roi;
 
         img_set.images(i1).meta(i2).disk = disk_parameters_i1;
 %         disk_parameters = cat(1,disk_parameters,disk_parameters_i1);
     end
 end
-save('img_set_disk_1em9_final.mat','img_set')
+mat_out = fullfile(mat_output_root,'img_set_disk_1em10_rev2_1.mat');
+%save('img_set_disk_1em9_final.mat','img_set')
+save(mat_out,'img_set')
 % save('parametric_disk_results1.mat','disk_parameters');
 % save('parametric_disk_results.mat','disk_parameters');
 
