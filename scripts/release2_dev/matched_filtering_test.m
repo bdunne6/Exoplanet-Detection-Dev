@@ -142,7 +142,7 @@ end
 it = ismember({cat(1,cat(1,img_set.images).meta).file_name},dt_lookup.keys);
 
 img_set0 = img_set.copy();
-img_set.images(~it) = [];
+%img_set.images(~it) = [];
 dmax = 0;
 for i1 = 1:numel(img_set.images)
 
@@ -214,9 +214,10 @@ for i1 = 1:numel(img_set.images)
     r_dist(i_rm) = [];
 
     %i_outlier = isoutlier(g_ind,'gesd');
-    i_outlier = isoutlier(g_ind,'median');
-     
-    i_outlier = i_outlier&(r_dist < rdist_max);
+    %i_outlier = isoutlier(g_ind,'median');
+    i_outlier = isoutlier(g_ind,'grubbs');
+    i_outlier = i_outlier&(g_ind > median(g_ind)); %positive outliers
+    i_outlier = i_outlier&(r_dist < rdist_max);%enforce max dist
 
     i_outlier = find(i_outlier);
     i_outlier = i_outlier(1:min(numel(i_outlier),n_planets));
