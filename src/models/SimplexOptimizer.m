@@ -38,7 +38,10 @@ classdef SimplexOptimizer < Optimizer
             [x_opt, SS] = fminsearch(loc_obj_fun,obj.init_params);
             toc
             %[x_opt, SS, cnt, res, XY] = LMFnlsq2(loc_obj_fun ,obj.init_params,lm_args{:});
-            i_outliers = any(reshape(i_outliers,[numel(i_outliers)/2,  2]),2);
+            %i_outliers = any(reshape(i_outliers,[numel(i_outliers)/2,  2]),2);
+            cnt = nan;
+            res = nan; 
+            XY = nan;
         end
         
         function obj_fun1 = get_objective_function(obj,i_valid,loss_function,loss_threshold)
