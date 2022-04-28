@@ -165,7 +165,7 @@ for i1 = 1:numel(img_set.images)
 
     imgt = img0 - bgnd1;
 
-    img1 = imgt - medfilt2(imgt,[21,21]);
+    img1 = imgt - medfilt2(imgt,[17,17]);
     %img1 = img1;
 
 
@@ -196,7 +196,7 @@ for i1 = 1:numel(img_set.images)
     end
     xym = [xm,ym];
 
-    [cent_xy,g_ind] = planet_detection(img_mf,Inf);
+    [cent_xy,g_ind,bin_lmax] = planet_detection(img_mf,Inf);
 
 
 
@@ -249,7 +249,8 @@ for i1 = 1:numel(img_set.images)
     img_c = fliplr(size(imgpt))/2;
 
 
-    mad = median(abs(img_mf(:) - median(img_mf(:))));
+%     mad = median(abs(img_mf(:) - median(img_mf(:))));
+    mad = median(abs(g_ind(:) - median(g_ind(:))));
     th = mad*8;
 
 
@@ -291,7 +292,8 @@ for i1 = 1:numel(img_set.images)
 
     subplot(1,3,3)
     hold off;
-    imagesc((img_mf>th)+(img_mf>mad*4))
+%     imagesc((img_mf>th)+(img_mf>mad*4))
+    imagesc((img_mf>mad*3)&bin_lmax)
     % imagesc(img_lp)
     hold on;
     plot(xm,ym,'or')
