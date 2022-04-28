@@ -1,6 +1,12 @@
 setup_path();clear;
 close all;
 
+
+%% user settings %%%%%%%%%%%%%%%%
+rdist_min = 3;
+rdist_max = 20;
+n_planets = 3;
+
 mat_true = dir(fullfile('..','..','data','ground_truth','*.mat'));
 dest_root = fullfile('..','mat_files');
 
@@ -24,8 +30,6 @@ psf = cat(3,psf1,psf2);
 
 
 dt_lookup = containers.Map;
-
-
 
 for i1 = 1:numel(mat_true)
     mat_filei1 = fullfile(mat_true(i1).folder,mat_true(i1).name);
@@ -138,8 +142,8 @@ end
 it = ismember({cat(1,cat(1,img_set.images).meta).file_name},dt_lookup.keys);
 
 img_set0 = img_set.copy();
-%img_set.images(~it) = [];
-
+img_set.images(~it) = [];
+dmax = 0;
 for i1 = 1:numel(img_set.images)
 
     image_m = img_set.images(i1);
@@ -156,15 +160,18 @@ for i1 = 1:numel(img_set.images)
 
     %     bgnd1 = cat(3,image_m.meta(1).background_estimate,image_m.meta(2).background_estimate);
     bgnd1 = image_m.meta(1).background_estimate;
-        sbgnd = img_set.images(i1).meta.disk.exozodi_image;
+    sbgnd = img_set.images(i1).meta.disk.exozodi_image;
     bgnd2 = crop_at_position(sbgnd,fliplr(size(sbgnd))/2,size(bgnd1));
 
-    img1 = img0 - bgnd2;
+    imgt = img0 - bgnd1;
+
+    img1 = imgt - medfilt2(imgt,[21,21]);
+    %img1 = img1;
 
 
 
-%     figure;
-%     imagesc(bgnd2)
+    %     figure;
+    %     imagesc(bgnd2)
 
     %img1 = img0;
 
@@ -178,7 +185,55 @@ for i1 = 1:numel(img_set.images)
     image_m.get_fits_keywords
     img_mf = conv2(img1,psf,'same');
 
-    [cent_xy,g_ind] = planet_detection(img_mf,3);
+
+    if isstruct(image_m.meta.planets)&&isfield(image_m.meta.planets,'xy_pixels')
+        xym = cat(1,image_m.meta.planets.xy_pixels)-12;
+        xm = xym(:,1);
+        ym = xym(:,2);
+    else
+        xm = nan;
+        ym = nan;
+    end
+    xym = [xm,ym];
+
+    [cent_xy,g_ind] = planet_detection(img_mf,Inf);
+
+
+
+    r_dist = vecnorm(cent_xy - img_c ,2,2);
+    i_valid = (r_dist > rdist_min);
+    cent_xy = cent_xy(i_valid,:);
+    g_ind = g_ind(i_valid);
+    r_dist = r_dist(i_valid);
+
+    [idx,d] = rangesearch(cent_xy,xym,2);
+    i_rm = [idx{:}];
+    i_rm = [];
+    cent_xy(i_rm,:) = [];
+    g_ind(i_rm) = [];
+    r_dist(i_rm) = [];
+
+    %i_outlier = isoutlier(g_ind,'gesd');
+    i_outlier = isoutlier(g_ind,'median');
+     
+    i_outlier = i_outlier&(r_dist < rdist_max);
+
+    i_outlier = find(i_outlier);
+    i_outlier = i_outlier(1:min(numel(i_outlier),n_planets));
+
+    g_ind_np = g_ind(i_outlier);
+
+    figure(103);
+    hold off;
+    histogram(g_ind)
+    hold on;
+    if ~isempty(g_ind_np)
+        plot(g_ind_np,0,'.','MarkerSize',15);
+    end
+
+    %     cent_xy = cent_xy(1:n_planets,:);
+    cent_xy = cent_xy( i_outlier,:);
+
 
     %     img_lp = medfilt2(img1,[9 9]);
     %     img_lp = medfilt2(img1,[9 9]);
@@ -193,24 +248,18 @@ for i1 = 1:numel(img_set.images)
     img_c = fliplr(size(imgpt))/2;
 
 
+    mad = median(abs(img_mf(:) - median(img_mf(:))));
+    th = mad*8;
 
-    if isstruct(image_m.meta.planets)&&isfield(image_m.meta.planets,'xy_pixels')
-        xym = cat(1,image_m.meta.planets.xy_pixels)-12;
-        xm = xym(:,1);
-        ym = xym(:,2);
-    else
-        xm = nan;
-        ym = nan;
-    end
 
     xd = cent_xy(:,1);
     yd = cent_xy(:,2);
 
 
     if dt_lookup.isKey(image_m.meta.file_name)
-    dt = dt_lookup(image_m.meta.file_name);
-    xt= dt.planets_approx_position_x_pix + img_c(1)+0.5;
-    yt= dt.planets_approx_position_y_pix + img_c(2)+0.5;
+        dt = dt_lookup(image_m.meta.file_name);
+        xt= dt.planets_approx_position_x_pix + img_c(1)+0.5;
+        yt= dt.planets_approx_position_y_pix + img_c(2)+0.5;
     else
         xt = nan; yt = nan;
     end
@@ -237,8 +286,7 @@ for i1 = 1:numel(img_set.images)
     plot(xd,yd,'+r')
     plot(xt,yt,'.r')
 
-    mad = median(abs(img_mf(:) - median(img_mf(:))));
-    th = mad*8;
+
 
     subplot(1,3,3)
     hold off;
@@ -250,19 +298,20 @@ for i1 = 1:numel(img_set.images)
     plot(xt,yt,'.r')
 
 
-        figure(102);
-    set(gcf,'units','normalized','outerposition',[0 0 1 1])
-        subplot(1,3,1)
-    hold off;
-    imagesc(img0);
-
-            subplot(1,3,2)
-    hold off;
-    imagesc(bgnd2);
-
-                subplot(1,3,3)
-    hold off;
-    imagesc(img0- bgnd2);
+    dmax = max([dmax,vecnorm([xt(:),yt(:)]-img_c,2,2)']);
+    %         figure(102);
+    %     set(gcf,'units','normalized','outerposition',[0 0 1 1])
+    %         subplot(1,3,1)
+    %     hold off;
+    %     imagesc(img0);
+    %
+    %             subplot(1,3,2)
+    %     hold off;
+    %     imagesc(bgnd2);
+    %
+    %                 subplot(1,3,3)
+    %     hold off;
+    %     imagesc(img0- bgnd2);
 
     %     figure;
     %     subplot(1,2,1)
@@ -273,7 +322,7 @@ for i1 = 1:numel(img_set.images)
     %     imagesc(imgf2)
     %         hold on;
     %     plot(xt,yt,'.r')
-
+    pause(1.5);
 end
 
 % function convolve_variable_psf(img1,psf_data)
