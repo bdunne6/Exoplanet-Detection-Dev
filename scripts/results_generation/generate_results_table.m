@@ -7,7 +7,7 @@ json_file = 'level_1_results_rev2_1em10.json';
 %% user settings
 meta_output_fields = {'file_name','design','num_planets','planets','disk'};
 disk_output_fields = {'inclination_deg','density','forward_scattering','brigthness_counts'};
-planet_output_fields = {'xy_pixels','xy_mas','xy_uncertainty_mas','planet_counts','planet_SNR','planet_star_ratio'};
+planet_output_fields = {'xy_pixels','xy_mas','xy_uncertainty_mas','planet_counts','planet_SNR','planet_star_ratio','fwhm'};
 xy_center = [33 33];
 
 %% main script
