@@ -20,6 +20,7 @@ classdef SimpleExozodi < ImageComponent
     properties (Hidden = true,Constant=true)
         %specification of subset of properties to be varied in an estimation problem
         free_params = {'intensity_scale','axes_ratio','orientation','center_xy','exp_scale','poly_coeff'};
+        %free_params = {'intensity_scale','axes_ratio','orientation','center_xy','poly_coeff'};
     end
     
     methods
@@ -72,6 +73,7 @@ classdef SimpleExozodi < ImageComponent
             %https://math.stackexchange.com/questions/426150/what-is-the-general-equation-of-the-ellipse-that-is-not-in-the-origin-and-rotate
             m_dist = sqrt((Xgc*cos(o) + Ygc*sin(o)).^2*a^(-2) + (Xgc*sin(o) - Ygc*cos(o)).^2*b^(-2));
             disk = s*exp(polyval(p_coeff,m_dist)/e_scale);
+            %disk = s*polyval(p_coeff,m_dist);
         end
     end
 end
