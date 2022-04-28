@@ -1,4 +1,4 @@
-function [cent_xy,g_ind] = planet_detection(rg,n)
+function [cent_xy,g_ind,bin] = planet_detection(rg,n)
 %PLANET_DETECTION Summary of this function goes here
 %   Detailed explanation goes here
 bin = imregionalmax(rg);
