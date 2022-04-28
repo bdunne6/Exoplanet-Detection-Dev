@@ -237,6 +237,9 @@ for i0 = 1:numel(img_set.images)
     ax2.UserData = img_set.images(i0).meta(2).file_name;
     %pause(0.1)
 
+    img_set.images(i0).meta(1).background_estimate = reci1_2(:,:,1);
+    img_set.images(i0).meta(2).background_estimate = reci1_2(:,:,2);
+
     img_set.images(i0).meta(1).planet_locations = rmfield(labels_1,'file_name');
     img_set.images(i0).meta(2).planet_locations = rmfield(labels_2,'file_name');
 
