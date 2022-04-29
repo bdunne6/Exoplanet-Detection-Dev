@@ -1,4 +1,4 @@
-clear;
+clear;setup_path();
 close all;
 
 %% user settings %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
