@@ -160,8 +160,33 @@ for i0 = 1:numel(img_set.images)
     mag_ref1 = reci1_2(:,:,1)-baseline1;
     disk_mag1 = sum(mag_ref1(:));
     res1_0  = img_sample(:,:,1) - reci1_2(:,:,1);
-    res1 = imfilter(res1_0,k2);
-    imagesc(ax1,res1_0)
+
+    imgt = res1_0 - medfilt2(res1_0,[17,17]);
+    pdet1 = mf_planet_detector(imgt,psf1,[3,17],3);
+    ndet1 = size(pdet1.detections.locations);
+
+
+    img_mf = pdet1.img_mf;
+    bin_lmax = pdet1.bin_locmax;
+    g_ind = pdet1.candidates.intensities;
+    cent_xy = pdet1.detections.locations;
+
+    xym = [cat(1,labels_1.x),cat(1,labels_1.y)];
+    if ~isempty(xym)
+        [idx,d] = rangesearch(cent_xy,xym,2);
+        i_rm = [idx{:}];
+        %i_rm = [];
+        cent_xy(i_rm,:) = [];
+        g_ind(i_rm) = [];
+    end
+
+    n0 = numel(labels_1);
+    for i2 = 1:size(cent_xy,1)
+        labels_1(n0+i2).x = cent_xy(i2,1);
+        labels_1(n0+i2).y = cent_xy(i2,2);
+    end
+
+    imagesc(ax1,img_mf)
 
     if ~isempty(labels_1)
         hold on;
@@ -172,8 +197,6 @@ for i0 = 1:numel(img_set.images)
         for i2 = 1:numel(labels_1)
             cent0 = [labels_1(i2).x,labels_1(i2).y];
             w=7;
-            %TODO: Fix the SNR calculation using proper PSF SNR estimation math:
-            %https://www.stsci.edu/instruments/wfpc2/Wfpc2_hand6/ch6_exposuretime6.html
             [cent1,cent_fit1] = refine_centroid_gaussian(res1_0 ,cent0,w,sigma_lookup1);
             cent_uncertainty = diff(cent_fit1.ci(2:3,:),1,2)/2;
             labels_1(i2).x_r = cent1(1);
@@ -204,13 +227,9 @@ for i0 = 1:numel(img_set.images)
 
     res2_0  = img_sample(:,:,2) - reci1_2(:,:,2);
 
-         imgt = res2_0 - medfilt2(res2_0,[17,17]);
+    imgt = res2_0 - medfilt2(res2_0,[17,17]);
     pdet2 = mf_planet_detector(imgt,psf2,[3,17],3);
-
-
-
     ndet2 = size(pdet2.detections.locations);
-
 
     img_mf = pdet2.img_mf;
     bin_lmax = pdet2.bin_locmax;
@@ -232,7 +251,6 @@ for i0 = 1:numel(img_set.images)
         labels_2(n0+i2).y = cent_xy(i2,2);
     end
 
-    res2 = imfilter(res2_0 ,k2);
     ax2 = nexttile(tile_2d(2,3));
     cla(ax2)
     %store file associated with axes for labelling
@@ -274,6 +292,9 @@ for i0 = 1:numel(img_set.images)
     ax2.UserData = img_set.images(i0).meta(2).file_name;
     %pause(0.1)
 
+    img_set.images(i0).meta(1).mf_detections = pdet1;
+    img_set.images(i0).meta(2).mf_detections = pdet2;
+
     img_set.images(i0).meta(1).background_estimate = reci1_2(:,:,1);
     img_set.images(i0).meta(2).background_estimate = reci1_2(:,:,2);
 
@@ -284,4 +305,4 @@ for i0 = 1:numel(img_set.images)
     img_set.images(i0).meta(2).disk.magnitude_counts = disk_mag2;
 end
 img_set = add_final_params(img_set);
-save(fullfile(mat_output_root,'img_set_disk_1em10_rev2.mat'),'img_set');
+save(fullfile(mat_output_root,'img_set_disk_1em10_rev4.mat'),'img_set');
