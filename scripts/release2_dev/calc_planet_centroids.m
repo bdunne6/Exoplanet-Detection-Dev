@@ -1,9 +1,17 @@
 clear;
 close all;
 
+%% user settings %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 mdl_path = fullfile('ica_models1','ica_17_ec2012725779cfc8a01eb63c55e867a7.mat');
 %mdl_path = fullfile('ica_models_1em9','ica_19_b7d23f1924ea919bc6a3620b473a79bc.mat');
 
+psf_mat = fullfile('..','mat_files','psf_data.mat');
+
+
+%% main script %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+load(psf_mat,'psf_data');
+psf1 = psf_data(1).psfs(:,:,end);
+psf2 = psf_data(2).psfs(:,:,end);
 
 mdl_data = load(mdl_path);
 
@@ -46,7 +54,8 @@ i_del = [planet_labels.x]<10|[planet_labels.y]<10|[planet_labels.x]>35|[planet_l
 planet_labels(i_del) = [];
 
 
-figure;
+% figure;
+% t1 = tiledlayout(2,3);
 plot([planet_labels.x],[planet_labels.y],'.r')
 xlim([0 Inf])
 ylim([0 Inf])
@@ -194,18 +203,45 @@ for i0 = 1:numel(img_set.images)
     disk_mag2 = sum(mag_ref2(:));
 
     res2_0  = img_sample(:,:,2) - reci1_2(:,:,2);
+
+         imgt = res2_0 - medfilt2(res2_0,[17,17]);
+    pdet2 = mf_planet_detector(imgt,psf2,[3,17],3);
+
+
+
+    ndet2 = size(pdet2.detections.locations);
+
+
+    img_mf = pdet2.img_mf;
+    bin_lmax = pdet2.bin_locmax;
+    g_ind = pdet2.candidates.intensities;
+    cent_xy = pdet2.detections.locations;
+
+    xym = [cat(1,labels_2.x),cat(1,labels_2.y)];
+    if ~isempty(xym)
+        [idx,d] = rangesearch(cent_xy,xym,2);
+        i_rm = [idx{:}];
+        %i_rm = [];
+        cent_xy(i_rm,:) = [];
+        g_ind(i_rm) = [];
+    end
+
+    n0 = numel(labels_2);
+    for i2 = 1:size(cent_xy,1)
+        labels_2(n0+i2).x = cent_xy(i2,1);
+        labels_2(n0+i2).y = cent_xy(i2,2);
+    end
+
     res2 = imfilter(res2_0 ,k2);
     ax2 = nexttile(tile_2d(2,3));
     cla(ax2)
     %store file associated with axes for labelling
-    imagesc(ax2,res2_0)
+    imagesc(ax2,img_mf)
     colorbar;
     %caxis([0 Inf])
     if ~isempty(labels_2)
         hold on;
         plot([labels_2.x],[labels_2.y],'.r')
-
-
 
         for i2 = 1:numel(labels_2)
             cent0 = [labels_2(i2).x,labels_2(i2).y];
@@ -226,6 +262,7 @@ for i0 = 1:numel(img_set.images)
             labels_2(i2).snr_est = estimate_SNR(image_pair_i0.images(2),PSF_fit,noise_per_pixel);
             sigma = sqrt(cent_fit2.x_opt(5)/2);
             labels_2(i2).fwhm = 2.355*sigma; %https://en.wikipedia.org/wiki/Full_width_at_half_maximum
+
 
         end
         plot([labels_2.x_r],[labels_2.y_r],'om');
