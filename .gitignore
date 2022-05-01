@@ -4,3 +4,4 @@ scripts/release1_dev/plots/
 scripts/release2_dev/plots/
 scripts/release2_dev/ica_models/
 scripts/release2_dev/ica_models*
+*.mat
