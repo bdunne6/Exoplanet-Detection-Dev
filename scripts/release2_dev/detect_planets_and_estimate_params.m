@@ -2,8 +2,8 @@ clear;setup_path();
 close all;
 
 %% user settings %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-mdl_path = fullfile('ica_models1','ica_17_ec2012725779cfc8a01eb63c55e867a7.mat');
-%mdl_path = fullfile('ica_models_1em9','ica_19_b7d23f1924ea919bc6a3620b473a79bc.mat');
+%mdl_path = fullfile('ica_models1','ica_17_ec2012725779cfc8a01eb63c55e867a7.mat');
+mdl_path = fullfile('ica_models_1em9','ica_19_b7d23f1924ea919bc6a3620b473a79bc.mat');
 
 psf_mat = fullfile('..','mat_files','psf_data.mat');
 
@@ -19,7 +19,7 @@ mdl = mdl_data.ica_mdl;
 
 %load('img_set_disk.mat');
 %img_set = img_set.stack_by({'passband'});
-load('img_set_disk.mat');
+load(fullfile(mat_output_root,'img_set_disk_1em9_final2.mat'));
 %img_set = img_set.stack_by({'passband'});
 
 % vidObj = VideoWriter('pca1.mp4','MPEG-4');
@@ -43,8 +43,8 @@ tile_2d = @(i,j) sub2ind(fliplr(tile_size),j,i);
 
 % img_set.images = img_set.images(randperm(numel(img_set.images)));
 
-load('planet_labels.mat');
-% load('planet_labels_1em9_final.mat');
+%load('planet_labels.mat');
+load('planet_labels_1em9_final.mat');
 % if exist('planet_checks.mat','file')
 %     load('planet_checks.mat')
 % else
@@ -305,4 +305,4 @@ for i0 = 1:numel(img_set.images)
     img_set.images(i0).meta(2).disk.magnitude_counts = disk_mag2;
 end
 img_set = add_final_params(img_set);
-save(fullfile(mat_output_root,'img_set_disk_1em10_rev4.mat'),'img_set');
+save(fullfile(mat_output_root,'img_set_disk_1em9_rev4.mat'),'img_set');
