@@ -26,7 +26,7 @@ r_dist = r_dist(i_valid);
 
 %i_outlier = isoutlier(g_ind,'gesd');
 %i_outlier = isoutlier(g_ind,'median');
-i_outlier = isoutlier(g_ind0,'grubbs');
+[i_outlier, lth, uth, center] = isoutlier(g_ind0,'grubbs');
 i_outlier = i_outlier&(g_ind0 > median(g_ind0)); %positive outliers
 i_outlier = i_outlier&(r_dist < rdist_max);%enforce max dist
 
@@ -46,6 +46,9 @@ candidates = struct();
 candidates.locations = cent_xy0;
 candidates.intensities = g_ind0;
 candidates.i_detected = i_outlier;
+candidates.lower_thresh = lth;
+candidates.upper_thresh = uth;
+candidates.cennter = center;
 
 dout.img_mf = img_mf;
 dout.detections = detections;
