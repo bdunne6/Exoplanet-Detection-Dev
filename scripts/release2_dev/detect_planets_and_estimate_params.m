@@ -44,7 +44,7 @@ tile_2d = @(i,j) sub2ind(fliplr(tile_size),j,i);
 % img_set.images = img_set.images(randperm(numel(img_set.images)));
 
 %load('planet_labels.mat');
-load('planet_labels_1em9_final.mat');
+load('planet_labels_1em9.mat');
 % if exist('planet_checks.mat','file')
 %     load('planet_checks.mat')
 % else
