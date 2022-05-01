@@ -2,7 +2,7 @@ clear;setup_path();
 close all;
 
 %% user settings %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%mdl_path = fullfile('ica_models1','ica_17_ec2012725779cfc8a01eb63c55e867a7.mat');
+%mdl_path = fullfile('ica_models','ica_17_ec2012725779cfc8a01eb63c55e867a7.mat');
 mdl_path = fullfile('ica_models_1em9','ica_19_b7d23f1924ea919bc6a3620b473a79bc.mat');
 
 psf_mat = fullfile('..','mat_files','psf_data.mat');
