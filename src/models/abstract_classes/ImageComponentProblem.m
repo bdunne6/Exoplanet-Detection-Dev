@@ -15,7 +15,7 @@ classdef (Abstract) ImageComponentProblem
         %Input parsing and validation for any ImageComponentProblem implementation.
         function [image_components,observed_image,optimizer] = parse_constructor_inputs(args_in)
             if numel(args_in) ~=3
-                error('CalibrationProblem constructor requires 4 arguments.')
+                error('ImageComponentProblem constructor requires 4 arguments.')
             end
             [image_components,observed_image,optimizer] = args_in{:};
             %check first input
