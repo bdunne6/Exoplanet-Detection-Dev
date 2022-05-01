@@ -1,8 +1,12 @@
 close all; clear; setup_path();
 mat_root = mat_output_root();
 % load('img_set_disk_1em9_final2.mat');
-load(fullfile(mat_root,'img_set_disk_1em10_rev4.mat'));
-json_file = 'level_1_results_rev4_1em10.json';
+%load(fullfile(mat_root,'img_set_disk_1em10_rev4.mat'));
+load(fullfile(mat_root,'img_set_disk_1em9_rev4.mat'));
+
+
+%json_file = 'level_1_results_rev4_1em10.json';
+json_file = 'level_1_results_rev4_1em9.json';
 
 %% user settings
 meta_output_fields = {'file_name','design','num_planets','planets','disk'};
