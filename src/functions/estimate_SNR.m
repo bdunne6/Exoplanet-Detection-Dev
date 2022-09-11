@@ -22,7 +22,7 @@ PSF_norm = PSF_fit/sum(PSF_fit(:));
 sharpness = sum(PSF_norm(:).^2);
 
 SNR_numerator = S_mag;
-S_n = (( dark_curr*(int_time_s+46) + noise_per_pixel)/sharpness);
+S_n = (noise_per_pixel^2/sharpness);
 SNR_denom_sq = S_mag + S_n;
 
 SNR1 = SNR_numerator/sqrt(SNR_denom_sq);
