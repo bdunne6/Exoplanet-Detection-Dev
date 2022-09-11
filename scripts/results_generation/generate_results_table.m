@@ -2,11 +2,18 @@ close all; clear; setup_path();
 mat_root = mat_output_root();
 % load('img_set_disk_1em9_final2.mat');
 %load(fullfile(mat_root,'img_set_disk_1em10_rev4.mat'));
-load(fullfile(mat_root,'img_set_disk_1em9_rev4.mat'));
+% load(fullfile(mat_root,'img_set_disk_1em9_rev4.mat'));
+% load(fullfile(mat_root,'img_set_disk_1em9_rev5.mat'));
+%load(fullfile(mat_root,'img_set_disk_1em10_rev5.mat'));
+
+input_mat_files = {fullfile(mat_root,'img_set_disk_1em10_rev5.mat'),fullfile(mat_root,'img_set_disk_1em9_rev5.mat')};
+output_json_files = {'level_1_results_rev5_1em10.json','level_1_results_rev5_1em9.json'};
+
 
 
 %json_file = 'level_1_results_rev4_1em10.json';
-json_file = 'level_1_results_rev4_1em9.json';
+% json_file = 'level_1_results_rev5_1em9.json';
+%json_file = 'level_1_results_rev5_1em10.json';
 
 %% user settings
 meta_output_fields = {'file_name','design','num_planets','planets','disk'};
@@ -15,6 +22,10 @@ planet_output_fields = {'xy_pixels','xy_mas','xy_uncertainty_mas','planet_counts
 xy_center = [33 33];
 
 %% main script
+
+for i0 = 1:numel(input_mat_files)
+load(input_mat_files{i0});
+
 images = img_set.images;
 meta = cat(1,images.meta);
 
@@ -31,10 +42,11 @@ for i1 = 1:numel(meta)
 end
 
 json_out = jsonencode(list_out,'PrettyPrint',true,'ConvertInfAndNaN', false);
-save_plaintext(json_file,json_out);
+save_plaintext(output_json_files{i0},json_out);
 
-
-fid = fopen(json_file,'r');
+fid = fopen(output_json_files{i0},'r');
 json_string = fread(fid,'char=>char')';
 fclose(fid);
 data = jsondecode(json_string);
+
+end
