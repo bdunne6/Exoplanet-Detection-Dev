@@ -39,8 +39,11 @@ for i1 = 1:numel(images)
             planets_i2(i3).xy_uncertainty_mas  = [metai2.planet_locations(i3).x_u, metai2.planet_locations(i3).x_u]*pixel_scale_i1;
             planets_i2(i3).planet_counts = metai2.planet_locations(i3).counts;
             planets_i2(i3).planet_SNR = metai2.planet_locations(i3).snr_est;
-            planets_i2(i3).fwhm = metai2.planet_locations(i3).fwhm;
+            planets_i2(i3).fwhm_mas = metai2.planet_locations(i3).fwhm*pixel_scale_i1;
             planets_i2(i3).planet_star_ratio = metai2.planet_locations(i3).counts/star_total_counts;
+            planets_i2(i3).planet_SNR_S_object = metai2.planet_locations(i3).snr_meta.S_object;
+            planets_i2(i3).planet_SNR_N_object = metai2.planet_locations(i3).snr_meta.N_object;
+            planets_i2(i3).planet_SNR_noise_per_pixel = metai2.planet_locations(i3).snr_meta.noise_per_pixel;
         end
 
         %% disk properties

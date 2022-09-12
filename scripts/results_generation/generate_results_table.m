@@ -18,7 +18,7 @@ output_json_files = {'level_1_results_rev5_1em10.json','level_1_results_rev5_1em
 %% user settings
 meta_output_fields = {'file_name','design','num_planets','planets','disk'};
 disk_output_fields = {'inclination_deg','density','forward_scattering','brigthness_counts'};
-planet_output_fields = {'xy_pixels','xy_mas','xy_uncertainty_mas','planet_counts','planet_SNR','planet_star_ratio','fwhm'};
+planet_output_fields = {'xy_pixels','xy_mas','xy_uncertainty_mas','planet_counts','planet_SNR','planet_star_ratio','fwhm_mas','planet_SNR_S_object','planet_SNR_N_object','planet_SNR_noise_per_pixel'};
 xy_center = [33 33];
 
 %% main script

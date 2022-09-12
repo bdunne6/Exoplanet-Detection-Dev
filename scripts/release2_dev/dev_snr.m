@@ -5,7 +5,7 @@ clear; setup_path();
 mat_true = dir(fullfile('..','..','data','ground_truth','*.mat'));
 
 
-img_set = load(fullfile(mat_output_root,'img_set_disk_1em10_rev2.mat')).img_set;
+img_set = load(fullfile(mat_output_root,'img_set_disk_1em10_rev5.mat')).img_set;
 img_set = img_set.unstack;
 %img_set.
 

@@ -22,7 +22,7 @@ load(psf_mat,'psf_data');
 psf1 = psf_data(1).psfs(:,:,end);
 psf2 = psf_data(2).psfs(:,:,end);
 
-for i0 = 2:numel(path_struct)
+for i0 = 1:numel(path_struct)
 
     mdl_data = load(path_struct(i0).mdl_path);
 
@@ -221,7 +221,7 @@ for i0 = 2:numel(path_struct)
                 labels_1(i3).centroid_args = {res1_0 ,cent0,w,sigma_lookup1};
 
                 PSF_fit = sample_gaussian_psf(cent_fit1,w);
-                labels_1(i3).snr_est = estimate_SNR(image_pair_i0.images(1),PSF_fit,noise_per_pixel);
+                [labels_1(i3).snr_est, labels_1(i3).snr_meta] = estimate_SNR(image_pair_i0.images(1),PSF_fit,noise_per_pixel);
                 sigma = sqrt(cent_fit1.x_opt(5)/2);
                 labels_1(i3).fwhm = 2.355*sigma; %https://en.wikipedia.org/wiki/Full_width_at_half_maximum
             end
@@ -289,7 +289,7 @@ for i0 = 2:numel(path_struct)
                 labels_2(i3).centroid_args = {res2_0,cent0,w,sigma_lookup2};
 
                 PSF_fit = sample_gaussian_psf(cent_fit2,w);
-                labels_2(i3).snr_est = estimate_SNR(image_pair_i0.images(2),PSF_fit,noise_per_pixel);
+                [labels_2(i3).snr_est, labels_2(i3).snr_meta]= estimate_SNR(image_pair_i0.images(2),PSF_fit,noise_per_pixel);
                 sigma = sqrt(cent_fit2.x_opt(5)/2);
                 labels_2(i3).fwhm = 2.355*sigma; %https://en.wikipedia.org/wiki/Full_width_at_half_maximum
 
